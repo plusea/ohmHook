@@ -25,6 +25,10 @@ float brightness = 15;        // screen brightness
 #define analogPin 7
 #define speakerPin 10
 
+// Conversion of ADC value to mV. Should be calibrated for each device?
+// Should also be made independent of battery voltage by reading 1.1V reference voltage first?
+#define analogValueToMilliVolt(x) ((x * 23) / 10)
+
 enum mode_e {
   mode_analog_read_init,
   mode_analog_read,
@@ -134,13 +138,26 @@ void handle_volt_init(void) {
 }
 
 void handle_volt(void) {
-  analogValue = analogRead(analogPin);
+  int tmp, approx, digit;
+  
+  analogValue = analogValueToMilliVolt(analogRead(analogPin));
+  
   // DISPLAY //
   myDisplay.setCursor(0);  // set the cursor to 1:
-  if (analogValue < 1000 && analogValue > 99) myDisplay.print(" ");
-  if (analogValue < 100 && analogValue > 9) myDisplay.print("  ");
-  if (analogValue < 10) myDisplay.print("   ");
-  myDisplay.print(analogValue, DEC);
+  
+  digit = analogValue / 1000;
+  approx = digit * 1000;
+  myDisplay.print(digit, DEC);
+  
+  myDisplay.print("v");
+  
+  digit = (analogValue - approx) / 100;
+  approx += digit * 100;
+  myDisplay.print(digit, DEC);
+  
+  digit = (analogValue - approx) / 10;
+  approx += digit * 10;
+  myDisplay.print(digit, DEC);
 }
 
 void handle_brightness(void) {
