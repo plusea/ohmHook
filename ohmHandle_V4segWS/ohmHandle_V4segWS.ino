@@ -161,6 +161,8 @@ void handle_volt(void) {
 }
 
 void handle_brightness(void) {
+  pinMode(potMinus, OUTPUT);
+  digitalWrite(potMinus, LOW);
   brightness = map(analogRead(analogPin), 0, 1023, 1, 15);
   brightness = constrain(brightness, 1, 15);
   myDisplay.setCursor(0);  // set the cursor to 1:
